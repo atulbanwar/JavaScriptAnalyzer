@@ -1,5 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using JavaScriptAnalyzer.POCO;
+using System;
 
 namespace JavaScriptAnalyzer
 {
@@ -9,20 +9,12 @@ namespace JavaScriptAnalyzer
 		{
 			string fileName;
 
-			Console.Write("Enter JavaScript file name with extension (or full file path): ");
+			Console.Write("Enter JavaScript file name (or full file path) with extension: ");
 			fileName = Console.ReadLine();
 
 			if (Helper.isValidFile(fileName))
 			{
-				string line;
-
-				StreamReader file = new StreamReader(fileName);
-				while ((line = file.ReadLine()) != null)
-				{
-					Console.WriteLine(line);
-				}
-
-				file.Close();
+				CodeBlock root = CodeBlockGraphBuilder.GetCodeBlockGraph(fileName);
 			}
 
 			Console.ReadLine();

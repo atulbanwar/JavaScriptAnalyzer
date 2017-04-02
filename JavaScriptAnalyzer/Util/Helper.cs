@@ -21,7 +21,7 @@ namespace JavaScriptAnalyzer
 
 			if (!File.Exists(fileName))
 			{
-				Console.WriteLine("File not found. Please enter valid file name with extension (or full file path).");
+				Console.WriteLine("File not found. Please enter JavaScript file name (or full file path) with extension.");
 				return false;
 			}
 

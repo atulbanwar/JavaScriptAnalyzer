@@ -13,5 +13,6 @@ namespace JavaScriptAnalyzer.POCO
 		public List<Variable> Variables { get; set; }
 		public List<CodeBlock> ChildrenBlocks { get; set; }
 		public CodeBlock ParentBlock { get; set; }
+		public int OpenParenthesisCount { get; set; }
 	}
 }

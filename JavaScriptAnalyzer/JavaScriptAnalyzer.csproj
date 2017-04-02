@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analyzer\CodeBlockGraphBuilder.cs" />
     <Compile Include="POCO\CodeBlock.cs" />
     <Compile Include="POCO\Variable.cs" />
     <Compile Include="Program.cs" />
