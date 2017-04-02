@@ -3,7 +3,7 @@ using System.IO;
 
 namespace JavaScriptAnalyzer
 {
-	class Util
+	class Helper
 	{
 		public static bool isValidFile(string fileName)
 		{

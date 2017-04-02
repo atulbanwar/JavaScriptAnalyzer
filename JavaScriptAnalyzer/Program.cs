@@ -12,7 +12,7 @@ namespace JavaScriptAnalyzer
 			Console.Write("Enter JavaScript file name with extension (or full file path): ");
 			fileName = Console.ReadLine();
 
-			if (Util.isValidFile(fileName))
+			if (Helper.isValidFile(fileName))
 			{
 				string line;
 
