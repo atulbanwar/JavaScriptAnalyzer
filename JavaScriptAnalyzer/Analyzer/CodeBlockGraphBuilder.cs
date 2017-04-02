@@ -27,19 +27,39 @@ namespace JavaScriptAnalyzer
 				{
 					Console.WriteLine(line);
 
-					// If line has function declaration
-					if (HasFunctionDeclaration(line))
+					// Function declaration in Class is different that function declaration at other places.
+					// So handling function declaration case inside class seperately
+					if (currentCodeBlock.Type == CodeBlockType.Class)
 					{
-						// Making new code block as current code block
-						CodeBlock block = GetFunctionCodeBlock(line, lineNo);
-						block.ParentBlock = currentCodeBlock;
-						currentCodeBlock.ChildrenBlocks.Add(block);
-						currentCodeBlock = block;
+						// If line inside class has a function declaration
+						if (HasClassFunctionDeclaration(line))
+						{
+							// Making new code block as current code block
+							CodeBlock block = GetClassFunctionCodeBlock(line, lineNo);
+							UpdateCurrentCodeBlock(ref block, ref currentCodeBlock);
+						}
 					}
-					// If the line has variable declaration(s)
-					else if (HasVariableDeclaration(line))
+					else
 					{
-						currentCodeBlock.Variables.AddRange(GetVariables(line, lineNo));
+						// If line has a function declaration
+						if (HasFunctionDeclaration(line))
+						{
+							// Making new code block as current code block
+							CodeBlock block = GetFunctionCodeBlock(line, lineNo);
+							UpdateCurrentCodeBlock(ref block, ref currentCodeBlock);
+						}
+						// If the line has a class declaration
+						else if (HasClassDeclaration(line))
+						{
+							// Making new code block as current code block
+							CodeBlock block = GetClassCodeBlock(line, lineNo);
+							UpdateCurrentCodeBlock(ref block, ref currentCodeBlock);
+						}
+						// If the line has variable declaration(s)
+						else if (HasVariableDeclaration(line))
+						{
+							currentCodeBlock.Variables.AddRange(GetVariables(line, lineNo));
+						}
 					}
 
 					if (currentCodeBlock.Type == CodeBlockType.Function || currentCodeBlock.Type == CodeBlockType.Class)
@@ -94,7 +114,7 @@ namespace JavaScriptAnalyzer
 		/// <returns>CodeBlock</returns>
 		private static CodeBlock GetFunctionCodeBlock(string line, int lineNo)
 		{
-			String functionName = String.Empty;
+			string functionName = string.Empty;
 			CodeBlockSubType subType = CodeBlockSubType.Simple;
 			Match match = null;
 
@@ -139,6 +159,72 @@ namespace JavaScriptAnalyzer
 		}
 
 		/// <summary>
+		/// Get CodeBlock object for function code block
+		/// </summary>
+		/// <returns>CodeBlock</returns>
+		private static CodeBlock GetClassFunctionCodeBlock(string line, int lineNo)
+		{
+			string functionName = string.Empty;
+			Match match = null;
+
+			match = Regex.Match(line.TrimStart(), @"([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
+			
+			if (match.Success)
+			{
+				functionName = match.Groups[1].Value;
+			}
+			else
+			{
+				// TODO: Log "Unable to read function name at line ...";
+			}
+
+			return new CodeBlock()
+			{
+				Name = functionName,
+				Type = CodeBlockType.Function,
+				SubType = CodeBlockSubType.None,
+				IsRoot = false,
+				LineNo = lineNo,
+				ParentBlock = null,
+				ChildrenBlocks = new List<CodeBlock>(),
+				Variables = new List<Variable>()
+			};
+		}
+
+		/// <summary>
+		/// Get CodeBlock object for class code block
+		/// </summary>
+		/// <returns>CodeBlock</returns>
+		private static CodeBlock GetClassCodeBlock(string line, int lineNo)
+		{
+			string className = string.Empty;
+			Match match = null;
+
+			match = Regex.Match(line, @"class ([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
+
+			if (match != null && match.Success)
+			{
+				className = match.Groups[1].Value;
+			}
+			else
+			{
+				// TODO: Log "Unable to read class name at line ...";
+			}
+
+			return new CodeBlock()
+			{
+				Name = className,
+				Type = CodeBlockType.Class,
+				SubType = CodeBlockSubType.None,
+				IsRoot = false,
+				LineNo = lineNo,
+				ParentBlock = null,
+				ChildrenBlocks = new List<CodeBlock>(),
+				Variables = new List<Variable>()
+			};
+		}
+
+		/// <summary>
 		/// Checking if the line contains variable declaration(s)
 		/// </summary>
 		/// <param name="line"></param>
@@ -156,6 +242,29 @@ namespace JavaScriptAnalyzer
 		private static bool HasFunctionDeclaration(string line)
 		{
 			return line.Replace(" ", "").Contains("=function(") || line.TrimStart().IndexOf("function") == 0;
+		}
+
+		/// <summary>
+		/// Checking if the line contains a class declaration
+		/// </summary>
+		/// <param name="line"></param>
+		/// <returns>True if line contains class declaration else false</returns>
+		private static bool HasClassDeclaration(string line)
+		{
+			return line.TrimStart().IndexOf("class ") == 0;
+		}
+
+		/// <summary>
+		/// Checking if the line inside class contains function declaration
+		/// </summary>
+		/// <param name="line"></param>
+		/// <returns>True if line contains function declaration else false</returns>
+		private static bool HasClassFunctionDeclaration(string line)
+		{
+			Match match;
+			match = Regex.Match(line, @"([a-zA-Z_$][0-9a-zA-Z_$]*)\(", RegexOptions.IgnoreCase);
+
+			return !(line.TrimStart().IndexOf("set ") == 0 || line.TrimStart().IndexOf("get ") == 0 || line.TrimStart().IndexOf("constructor(") == 0 || line.Contains(";")) && match.Success;
 		}
 
 		/// <summary>
@@ -243,6 +352,20 @@ namespace JavaScriptAnalyzer
 			}
 
 			return variables;
+		}
+
+		/// <summary>
+		/// Setting parent code block of new code block as current code block 
+		/// Setting children code blocks of current code block as new code block
+		/// Making new code block as current code block
+		/// </summary>
+		/// <param name="block"></param>
+		/// <param name="currentCodeBlock"></param>
+		private static void UpdateCurrentCodeBlock(ref CodeBlock block, ref CodeBlock currentCodeBlock)
+		{
+			block.ParentBlock = currentCodeBlock;
+			currentCodeBlock.ChildrenBlocks.Add(block);
+			currentCodeBlock = block;
 		}
 	}
 }
