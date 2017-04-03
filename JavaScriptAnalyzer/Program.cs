@@ -1,4 +1,5 @@
-﻿using JavaScriptAnalyzer.POCO;
+﻿using JavaScriptAnalyzer.Analyzer;
+using JavaScriptAnalyzer.POCO;
 using System;
 
 namespace JavaScriptAnalyzer
@@ -15,6 +16,9 @@ namespace JavaScriptAnalyzer
 			if (Helper.isValidFile(fileName))
 			{
 				CodeBlock root = CodeBlockGraphBuilder.GetCodeBlockGraph(fileName);
+
+				VariableUsageAnalyzer.UpdateVariableUsageProperty(root, fileName);
+
 			}
 
 			Console.ReadLine();

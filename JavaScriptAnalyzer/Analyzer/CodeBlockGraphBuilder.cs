@@ -19,14 +19,12 @@ namespace JavaScriptAnalyzer
 			CodeBlock root = GetRootCodeBlock();
 			CodeBlock currentCodeBlock = root;
 			string line;
-			int lineNo = 0;
+			int lineNo = 1;
 
 			using (StreamReader file = new StreamReader(fileName))
 			{
 				while ((line = file.ReadLine()) != null)
 				{
-					Console.WriteLine(line);
-
 					// Function declaration in Class is different that function declaration at other places.
 					// So handling function declaration case inside class seperately
 					if (currentCodeBlock.Type == CodeBlockType.Class)
@@ -61,6 +59,9 @@ namespace JavaScriptAnalyzer
 							currentCodeBlock.Variables.AddRange(GetVariables(line, lineNo));
 						}
 					}
+
+					// Maintaining lines nos where the current block spans.
+					currentCodeBlock.RunsOnLines.Add(lineNo);
 
 					if (currentCodeBlock.Type == CodeBlockType.Function || currentCodeBlock.Type == CodeBlockType.Class)
 					{
@@ -101,7 +102,7 @@ namespace JavaScriptAnalyzer
 				Type = CodeBlockType.Open,
 				SubType = CodeBlockSubType.Simple,
 				IsRoot = true,
-				LineNo = 0,
+				RunsOnLines = new List<int>(),
 				ParentBlock = null,
 				ChildrenBlocks = new List<CodeBlock>(),
 				Variables = new List<Variable>()
@@ -151,7 +152,7 @@ namespace JavaScriptAnalyzer
 				Type = CodeBlockType.Function,
 				SubType = subType,
 				IsRoot = false,
-				LineNo = lineNo,
+				RunsOnLines = new List<int>(),
 				ParentBlock = null,
 				ChildrenBlocks = new List<CodeBlock>(),
 				Variables = new List<Variable>()
@@ -184,7 +185,7 @@ namespace JavaScriptAnalyzer
 				Type = CodeBlockType.Function,
 				SubType = CodeBlockSubType.None,
 				IsRoot = false,
-				LineNo = lineNo,
+				RunsOnLines = new List<int>(),
 				ParentBlock = null,
 				ChildrenBlocks = new List<CodeBlock>(),
 				Variables = new List<Variable>()
@@ -217,7 +218,7 @@ namespace JavaScriptAnalyzer
 				Type = CodeBlockType.Class,
 				SubType = CodeBlockSubType.None,
 				IsRoot = false,
-				LineNo = lineNo,
+				RunsOnLines = new List<int>(),
 				ParentBlock = null,
 				ChildrenBlocks = new List<CodeBlock>(),
 				Variables = new List<Variable>()
@@ -239,7 +240,7 @@ namespace JavaScriptAnalyzer
 		/// </summary>
 		/// <param name="line"></param>
 		/// <returns>True if line contains function declaration else false</returns>
-		private static bool HasFunctionDeclaration(string line)
+		public static bool HasFunctionDeclaration(string line)
 		{
 			return line.Replace(" ", "").Contains("=function(") || line.TrimStart().IndexOf("function") == 0;
 		}
@@ -249,7 +250,7 @@ namespace JavaScriptAnalyzer
 		/// </summary>
 		/// <param name="line"></param>
 		/// <returns>True if line contains class declaration else false</returns>
-		private static bool HasClassDeclaration(string line)
+		public static bool HasClassDeclaration(string line)
 		{
 			return line.TrimStart().IndexOf("class ") == 0;
 		}
@@ -259,7 +260,7 @@ namespace JavaScriptAnalyzer
 		/// </summary>
 		/// <param name="line"></param>
 		/// <returns>True if line contains function declaration else false</returns>
-		private static bool HasClassFunctionDeclaration(string line)
+		public static bool HasClassFunctionDeclaration(string line)
 		{
 			Match match;
 			match = Regex.Match(line, @"([a-zA-Z_$][0-9a-zA-Z_$]*)\(", RegexOptions.IgnoreCase);
