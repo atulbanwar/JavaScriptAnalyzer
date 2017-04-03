@@ -18,28 +18,53 @@ namespace JavaScriptAnalyzer.Analyzer
 		{
 			CodeBlock currentCodeBlock = root;
 			string line;
-			int lineNo = 1;
+			int lineNo = 0;
 
 			using (StreamReader file = new StreamReader(fileName))
 			{
 				while ((line = file.ReadLine()) != null)
 				{
+					lineNo++;
+
 					if (!currentCodeBlock.RunsOnLines.Contains(lineNo))
 					{
 						currentCodeBlock = GetCurrentCodeBlock(currentCodeBlock, lineNo);
 
+						// To skip lines having class, class - function and function declaration
 						if (CodeBlockGraphBuilder.HasClassDeclaration(line) || CodeBlockGraphBuilder.HasFunctionDeclaration(line) || CodeBlockGraphBuilder.HasClassFunctionDeclaration(line))
 							continue;
 					}
 
-					// To skip lines of classblock and lines having class or function declaration statement
-					if (currentCodeBlock.Type != CodeBlockType.Class) {
+					// To skip lines of classblock
+					if (currentCodeBlock.Type != CodeBlockType.Class)
+					{
 						List<string> variablesUsed = GetVariablesUsed(line);
 
+						foreach (string variable in variablesUsed)
+						{
+							bool isVariableFound = false;
+							CodeBlock checkInBlock = currentCodeBlock;
 
+							// Looking for variable from current block in upward direction till root block
+							while (isVariableFound != true && checkInBlock != null)
+							{
+								foreach (Variable declaredVariable in checkInBlock.Variables)
+								{
+									if (declaredVariable.Name.Equals(variable) && declaredVariable.LineNo < lineNo)
+									{
+										declaredVariable.IsUsed = true;
+										isVariableFound = true;
+										break;
+									}
+								}
+
+								if (isVariableFound == false)
+								{
+									checkInBlock = checkInBlock.ParentBlock;
+								}
+							}
+						}
 					}
-
-					lineNo++;
 				}
 			}
 		}
@@ -119,7 +144,7 @@ namespace JavaScriptAnalyzer.Analyzer
 					}
 					line = sb.ToString();
 				}
-				
+
 				// Multiple Variable Declaration on same line
 				if (line.Contains(","))
 				{
@@ -162,6 +187,11 @@ namespace JavaScriptAnalyzer.Analyzer
 			return variablesUsed;
 		}
 
+		/// <summary>
+		/// Extract variable names from string
+		/// </summary>
+		/// <param name="linePart"></param>
+		/// <returns>List of variable names</returns>
 		private static List<string> ExtractVariables(string linePart)
 		{
 			List<string> variables = new List<string>();
