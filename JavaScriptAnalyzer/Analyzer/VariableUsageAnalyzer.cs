@@ -74,15 +74,20 @@ namespace JavaScriptAnalyzer.Analyzer
 		private static List<string> GetVariablesUsed(string line)
 		{
 			List<string> variablesUsed = new List<string>();
-			Match match = null;
-			Regex pattern = null;
+			line = line.Trim();
 
-			// Case I: Variable Declaration with out any value assignment
-			if ((line.TrimStart().IndexOf("var ") == 0 || line.TrimStart().IndexOf("let ") == 0) && !line.Contains("="))
+			// Case I: Empty line, or line contains only '{' or '}' bracket
+			if (string.IsNullOrWhiteSpace(line) || line.Equals("}") || line.Equals("{"))
+			{
 				return variablesUsed;
-
+			}
+			// Case II: Variable Declaration with out any value assignment
+			else if ((line.IndexOf("var ") == 0 || line.IndexOf("let ") == 0) && !line.Contains("="))
+			{
+				return variablesUsed;
+			}
 			// Case II: Variable declaration with value assignment. Can use some variable after '=' sign for assignment
-			if ((line.TrimStart().IndexOf("var ") == 0 || line.TrimStart().IndexOf("let ") == 0) && line.Contains("="))
+			else if ((line.IndexOf("var ") == 0 || line.IndexOf("let ") == 0) && line.Contains("="))
 			{
 				// Replace ',' present inside '(' and ')' with something to distinguish them with ',' used for multiple variable declaration
 				if (line.Contains("(") && line.Contains(","))
@@ -114,7 +119,7 @@ namespace JavaScriptAnalyzer.Analyzer
 					}
 					line = sb.ToString();
 				}
-
+				
 				// Multiple Variable Declaration on same line
 				if (line.Contains(","))
 				{
@@ -123,58 +128,70 @@ namespace JavaScriptAnalyzer.Analyzer
 						// Skip the variable declaration which does not have an assignment part
 						if (subStr.Contains("="))
 						{
-							variablesUsed.AddRange(ExtractVariablesAfterEqualToSign(subStr));
+							variablesUsed.AddRange(ExtractVariables(subStr.Split('=')[1].Trim()));
 						}
 					}
 				}
 				else
 				{
-					variablesUsed = ExtractVariablesAfterEqualToSign(line);
+					variablesUsed = ExtractVariables(line.Split('=')[1].Trim());
 				}
 			}
-
-			// Case III: Value assignment to a variable
-			if (line.TrimStart().IndexOf("var ") == -1 && line.TrimStart().IndexOf("let ") == -1 && line.Contains("="))
+			// Case IV: Value assignment to a variable
+			else if (line.IndexOf("var ") == -1 && line.IndexOf("let ") == -1 && line.Contains("="))
 			{
 				variablesUsed.Add(line.Split('=')[0].Trim());
-				variablesUsed.AddRange(ExtractVariablesAfterEqualToSign(line));
+				variablesUsed.AddRange(ExtractVariables(line.Split('=')[1].Trim()));
 			}
-
-			// Case IV: If line has function declaration
+			// Case V: Variable use in return statement
+			else if (line.IndexOf("return ") == 0)
+			{
+				variablesUsed.AddRange(ExtractVariables(line.Remove(0, 7)));
+			}
+			// Case VI: Function call
+			else if (Regex.Match(line, @"([a-zA-Z_$][0-9a-zA-Z_.]*)\(", RegexOptions.IgnoreCase).Success)
+			{
+				variablesUsed.AddRange(ExtractVariables(line));
+			}
+			// Case VII: Variable++ or Variable-- statements
+			else if (Regex.Match(line, @"([a-zA-Z_$][0-9a-zA-Z_.]*)\+\+;|([a-zA-Z_$][0-9a-zA-Z_.]*)\-\-;", RegexOptions.IgnoreCase).Success)
+			{
+				variablesUsed.AddRange(ExtractVariables(line));
+			}
 
 			return variablesUsed;
 		}
 
-		private static List<string> ExtractVariablesAfterEqualToSign(string linePart)
+		private static List<string> ExtractVariables(string linePart)
 		{
 			List<string> variables = new List<string>();
 			Match match = null;
 			Regex pattern = null;
 
-			string assignmentPart = linePart.Split('=')[1].ToString().Trim();
-
-			// Case II - I: Assigning new object to variable
-			if (assignmentPart.IndexOf("new ") == 0)
+			if (string.IsNullOrWhiteSpace(linePart))
 				return variables;
 
-			// Case II - II: Assigning some functions' return value.
-			// Need to consider as some variable may be the part of function's input.
-			match = Regex.Match(assignmentPart, @"([a-zA-Z_$][0-9a-zA-Z_.]*)\(", RegexOptions.IgnoreCase);
+			// Creating new object (not using any variable)
+			if (linePart.IndexOf("new ") == 0)
+				return variables;
+
+			// Function call - Need to consider as some variable may be the part of function's input.
+			match = Regex.Match(linePart, @"([a-zA-Z_$][0-9a-zA-Z_.]*)\(", RegexOptions.IgnoreCase);
 			if (match.Success)
 			{
 				string functionName = match.Groups[1].Value;
-				assignmentPart = assignmentPart.Replace(functionName, "");
+				linePart = linePart.Replace(functionName, "");
 			}
 
-			// Case II - III: Removing (, ), {, } from file
+			// Removing (, ), {, }
 			pattern = new Regex("[()\\[\\]; ]");
-			assignmentPart = pattern.Replace(assignmentPart, "");
+			linePart = pattern.Replace(linePart, "");
 
-			// Case II: IV Replacing all special characters by '|'
+			// Replacing all special characters by '|'
 			pattern = new Regex("[+\\-*/<>=!,]");
-			assignmentPart = pattern.Replace(assignmentPart, "|");
+			linePart = pattern.Replace(linePart, "|");
 
-			foreach (var element in assignmentPart.Split('|'))
+			foreach (var element in linePart.Split('|'))
 			{
 				int num;
 				if (!int.TryParse(element, out num) && !element.Contains("\"") && !element.ToString().Trim().Equals(""))
