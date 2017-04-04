@@ -17,8 +17,7 @@ namespace JavaScriptAnalyzer
 			{
 				CodeBlock root = CodeBlockGraphBuilder.GetCodeBlockGraph(fileName);
 
-				VariableUsageAnalyzer.UpdateVariableUsageProperty(root, fileName);
-
+				VariableUsageAnalyzer.DisplayUnUsedVariables(root, fileName);
 			}
 
 			Console.ReadLine();

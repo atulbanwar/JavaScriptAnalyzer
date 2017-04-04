@@ -1,4 +1,5 @@
 ﻿using JavaScriptAnalyzer.POCO;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -10,11 +11,41 @@ namespace JavaScriptAnalyzer.Analyzer
 	class VariableUsageAnalyzer
 	{
 		/// <summary>
+		/// Display the list of unused variables
+		/// </summary>
+		/// <param name="root"></param>
+		/// <param name="fileName"></param>
+		public static void DisplayUnUsedVariables(CodeBlock root, string fileName)
+		{
+			// First update the usage property of all variables
+			UpdateVariableUsageProperty(root, fileName);
+
+			List<Variable> unUsedVariables = new List<Variable>();
+
+			IdentifyUnUsedVariables(unUsedVariables, root);
+
+			unUsedVariables.Sort((x, y) => x.LineNo.CompareTo(y.LineNo));
+
+			if (unUsedVariables.Count > 0)
+			{
+				Console.WriteLine("\nList of variables declared but not used: ");
+				foreach (Variable unUsedVariable in unUsedVariables)
+				{
+					Console.WriteLine("Name: " + unUsedVariable.Name + ", Line No.: " + unUsedVariable.LineNo);
+				}
+			}
+			else
+			{
+				Console.WriteLine("\nAll the declared variables are used in the program");
+			}
+		}
+
+		/// <summary>
 		/// Updating IsUsed Property of each variable present in CodeBlocks
 		/// </summary>
 		/// <param name="root"></param>
 		/// <param name="fileName"></param>
-		public static void UpdateVariableUsageProperty(CodeBlock root, string fileName)
+		private static void UpdateVariableUsageProperty(CodeBlock root, string fileName)
 		{
 			CodeBlock currentCodeBlock = root;
 			string line;
@@ -231,6 +262,30 @@ namespace JavaScriptAnalyzer.Analyzer
 			}
 
 			return variables;
+		}
+
+		/// <summary>
+		/// Recursively iterate over all code blocks to identify all variables which are not used
+		/// </summary>
+		/// <param name="unUsedVariables"></param>
+		/// <param name="codeBlock"></param>
+		private static void IdentifyUnUsedVariables(List<Variable> unUsedVariables, CodeBlock codeBlock)
+		{
+			foreach (Variable variable in codeBlock.Variables)
+			{
+				if (!variable.IsUsed)
+				{
+					unUsedVariables.Add(variable);
+				}
+			}
+
+			if (codeBlock.ChildrenBlocks.Count > 0)
+			{
+				foreach (CodeBlock childCodeBlock in codeBlock.ChildrenBlocks)
+				{
+					IdentifyUnUsedVariables(unUsedVariables, childCodeBlock);
+				}
+			}
 		}
 	}
 }
