@@ -14,10 +14,17 @@ namespace JavaScriptAnalyzer.Analyzer
 
 			Dictionary<string, int> unDeclaredFunctions = GetUnDeclaredFunctionNames(root, fileName);
 
-			Console.WriteLine("\nList of functions called but not declared (or out of scope): ");
-			foreach (var unDeclaredFn in unDeclaredFunctions)
+			if (unDeclaredFunctions.Count > 0)
 			{
-				Console.WriteLine("Name: " + unDeclaredFn.Key + "\t\t Line No.: " + unDeclaredFn.Value);
+				Console.WriteLine("\nList of functions called but not declared (or out of scope): ");
+				foreach (var unDeclaredFn in unDeclaredFunctions)
+				{
+					Console.WriteLine("Name: " + unDeclaredFn.Key + "\t\t Line No.: " + unDeclaredFn.Value);
+				}
+			}
+			else
+			{
+				Console.WriteLine("\nAll functions called are declared.");
 			}
 		}
 

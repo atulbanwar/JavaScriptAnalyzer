@@ -20,6 +20,8 @@ namespace JavaScriptAnalyzer
 				VariableUsageAnalyzer.DisplayUnUsedVariables(root, fileName);
 
 				FunctionUsageAnalyzer.DisplayUnDeclaredFunctions(root, fileName);
+
+				SingleLineIfElseAnalyzer.DisplaySingleLineIfElse(fileName);
 			}
 
 			Console.ReadLine();

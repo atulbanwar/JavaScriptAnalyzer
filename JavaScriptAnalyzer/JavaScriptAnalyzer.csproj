@@ -46,6 +46,7 @@
     <Compile Include="Analyzer\CodeBlockGraphBuilder.cs" />
     <Compile Include="Analyzer\FunctionUsageAnalyzer.cs" />
     <Compile Include="Analyzer\CodeBlockGraphUtil.cs" />
+    <Compile Include="Analyzer\SingleLineIfElseAnalyzer.cs" />
     <Compile Include="Analyzer\VariableUsageAnalyzer.cs" />
     <Compile Include="POCO\CodeBlock.cs" />
     <Compile Include="POCO\Variable.cs" />
