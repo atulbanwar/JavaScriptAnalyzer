@@ -1,4 +1,5 @@
-﻿using JavaScriptAnalyzer.POCO;
+﻿using JavaScriptAnalyzer.Analyzer;
+using JavaScriptAnalyzer.POCO;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,7 +31,7 @@ namespace JavaScriptAnalyzer
 					if (currentCodeBlock.Type == CodeBlockType.Class)
 					{
 						// If line inside class has a function declaration
-						if (HasClassFunctionDeclaration(line))
+						if (CodeBlockGraphUtil.HasClassFunctionDeclaration(line))
 						{
 							// Making new code block as current code block
 							CodeBlock block = GetClassFunctionCodeBlock(line, lineNo);
@@ -40,21 +41,21 @@ namespace JavaScriptAnalyzer
 					else
 					{
 						// If line has a function declaration
-						if (HasFunctionDeclaration(line))
+						if (CodeBlockGraphUtil.HasFunctionDeclaration(line))
 						{
 							// Making new code block as current code block
 							CodeBlock block = GetFunctionCodeBlock(line, lineNo);
 							UpdateCurrentCodeBlock(ref block, ref currentCodeBlock);
 						}
 						// If the line has a class declaration
-						else if (HasClassDeclaration(line))
+						else if (CodeBlockGraphUtil.HasClassDeclaration(line))
 						{
 							// Making new code block as current code block
 							CodeBlock block = GetClassCodeBlock(line, lineNo);
 							UpdateCurrentCodeBlock(ref block, ref currentCodeBlock);
 						}
 						// If the line has variable declaration(s)
-						else if (HasVariableDeclaration(line))
+						else if (CodeBlockGraphUtil.HasVariableDeclaration(line))
 						{
 							currentCodeBlock.Variables.AddRange(GetVariables(line, lineNo));
 						}
@@ -226,49 +227,6 @@ namespace JavaScriptAnalyzer
 		}
 
 		/// <summary>
-		/// Checking if the line contains variable declaration(s)
-		/// </summary>
-		/// <param name="line"></param>
-		/// <returns>True if line contains variable declaration else false</returns>
-		private static bool HasVariableDeclaration(string line)
-		{
-			return line.TrimStart().IndexOf("var ") == 0 || line.TrimStart().IndexOf("let ") == 0;
-		}
-
-		/// <summary>
-		/// Checking if the line contains function declaration
-		/// </summary>
-		/// <param name="line"></param>
-		/// <returns>True if line contains function declaration else false</returns>
-		public static bool HasFunctionDeclaration(string line)
-		{
-			return line.Replace(" ", "").Contains("=function(") || line.TrimStart().IndexOf("function") == 0;
-		}
-
-		/// <summary>
-		/// Checking if the line contains a class declaration
-		/// </summary>
-		/// <param name="line"></param>
-		/// <returns>True if line contains class declaration else false</returns>
-		public static bool HasClassDeclaration(string line)
-		{
-			return line.TrimStart().IndexOf("class ") == 0;
-		}
-
-		/// <summary>
-		/// Checking if the line inside class contains function declaration
-		/// </summary>
-		/// <param name="line"></param>
-		/// <returns>True if line contains function declaration else false</returns>
-		public static bool HasClassFunctionDeclaration(string line)
-		{
-			Match match;
-			match = Regex.Match(line, @"([a-zA-Z_$][0-9a-zA-Z_$]*)\(", RegexOptions.IgnoreCase);
-
-			return !(line.TrimStart().IndexOf("set ") == 0 || line.TrimStart().IndexOf("get ") == 0 || line.TrimStart().IndexOf("constructor(") == 0 || line.Contains(";")) && match.Success;
-		}
-
-		/// <summary>
 		/// Fetch variable names from line and return variable objects
 		/// </summary>
 		/// <param name="line"></param>
@@ -285,7 +243,7 @@ namespace JavaScriptAnalyzer
 			{
 				foreach (string varStr in line.Split(','))
 				{
-					if (HasVariableDeclaration(varStr))
+					if (CodeBlockGraphUtil.HasVariableDeclaration(varStr))
 					{
 						if (line.TrimStart().IndexOf("var ") == 0)
 						{

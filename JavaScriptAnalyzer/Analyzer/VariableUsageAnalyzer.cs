@@ -31,7 +31,7 @@ namespace JavaScriptAnalyzer.Analyzer
 				Console.WriteLine("\nList of variables declared but not used: ");
 				foreach (Variable unUsedVariable in unUsedVariables)
 				{
-					Console.WriteLine("Name: " + unUsedVariable.Name + ", Line No.: " + unUsedVariable.LineNo);
+					Console.WriteLine("Name: " + unUsedVariable.Name + "\t\t Line No.: " + unUsedVariable.LineNo);
 				}
 			}
 			else
@@ -59,10 +59,10 @@ namespace JavaScriptAnalyzer.Analyzer
 
 					if (!currentCodeBlock.RunsOnLines.Contains(lineNo))
 					{
-						currentCodeBlock = GetCurrentCodeBlock(currentCodeBlock, lineNo);
+						currentCodeBlock = CodeBlockGraphUtil.GetCurrentCodeBlock(currentCodeBlock, lineNo);
 
 						// To skip lines having class, class - function and function declaration
-						if (CodeBlockGraphBuilder.HasClassDeclaration(line) || CodeBlockGraphBuilder.HasFunctionDeclaration(line) || CodeBlockGraphBuilder.HasClassFunctionDeclaration(line))
+						if (CodeBlockGraphUtil.HasClassDeclaration(line) || CodeBlockGraphUtil.HasFunctionDeclaration(line) || CodeBlockGraphUtil.HasClassFunctionDeclaration(line))
 							continue;
 					}
 
@@ -98,28 +98,6 @@ namespace JavaScriptAnalyzer.Analyzer
 					}
 				}
 			}
-		}
-
-		/// <summary>
-		/// Return CurrentCodeBlock based on the line no
-		/// </summary>
-		/// <param name="currentCodeBlock"></param>
-		/// <param name="lineNo"></param>
-		/// <returns>CodeBlock</returns>
-		private static CodeBlock GetCurrentCodeBlock(CodeBlock currentCodeBlock, int lineNo)
-		{
-			if (currentCodeBlock.ChildrenBlocks.Count > 0)
-			{
-				foreach (CodeBlock childCodeBlock in currentCodeBlock.ChildrenBlocks)
-				{
-					if (childCodeBlock.RunsOnLines.Contains(lineNo))
-					{
-						return childCodeBlock;
-					}
-				}
-			}
-
-			return currentCodeBlock.ParentBlock;
 		}
 
 		/// <summary>
