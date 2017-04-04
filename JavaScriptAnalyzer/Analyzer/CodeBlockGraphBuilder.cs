@@ -237,6 +237,9 @@ namespace JavaScriptAnalyzer
 			Variable variable = null;
 			Match match;
 			string variableName;
+			line = line.Trim();
+			string objectName = string.Empty;
+			VariableType type = VariableType.Simple;
 
 			// Checking for multiple variable declaration
 			if (line.Contains(","))
@@ -245,7 +248,7 @@ namespace JavaScriptAnalyzer
 				{
 					if (CodeBlockGraphUtil.HasVariableDeclaration(varStr))
 					{
-						if (line.TrimStart().IndexOf("var ") == 0)
+						if (line.IndexOf("var ") == 0)
 						{
 							match = Regex.Match(line, @"var ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
 						}
@@ -267,8 +270,8 @@ namespace JavaScriptAnalyzer
 							Name = variableName,
 							LineNo = lineNo,
 							IsUsed = false,
-							Type = VariableType.Simple,
-							ObjectName = String.Empty
+							Type = type,
+							ObjectName = objectName
 						};
 
 						variables.Add(variable);
@@ -281,7 +284,7 @@ namespace JavaScriptAnalyzer
 			}
 			else
 			{
-				if (line.TrimStart().IndexOf("var ") == 0)
+				if (line.IndexOf("var ") == 0)
 				{
 					match = Regex.Match(line, @"var ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
 				}
@@ -293,13 +296,29 @@ namespace JavaScriptAnalyzer
 				if (match.Success)
 				{
 					variableName = match.Groups[1].Value;
+
+					// Looking for object creation
+					if (line.Contains("="))
+					{
+						if (line.Split('=')[1].Trim().IndexOf("new ") == 0)
+						{
+							match = Regex.Match(line, @"new ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
+
+							if (match.Success)
+							{
+								objectName = match.Groups[1].Value;
+								type = VariableType.Object;
+							}
+						}
+					}
+
 					variable = new Variable()
 					{
 						Name = variableName,
 						LineNo = lineNo,
 						IsUsed = false,
-						Type = VariableType.Simple,
-						ObjectName = String.Empty
+						Type = type,
+						ObjectName = objectName
 					};
 
 					variables.Add(variable);

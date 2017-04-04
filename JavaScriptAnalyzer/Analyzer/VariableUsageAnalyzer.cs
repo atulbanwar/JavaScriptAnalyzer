@@ -109,6 +109,7 @@ namespace JavaScriptAnalyzer.Analyzer
 		{
 			List<string> variablesUsed = new List<string>();
 			line = line.Trim();
+			Match match = null;
 
 			// Case I: Empty line, or line contains only '{' or '}' bracket
 			if (string.IsNullOrWhiteSpace(line) || line.Equals("}") || line.Equals("{"))
@@ -183,8 +184,21 @@ namespace JavaScriptAnalyzer.Analyzer
 				variablesUsed.AddRange(ExtractVariables(line.Remove(0, 7)));
 			}
 			// Case VI: Function call
-			else if (Regex.Match(line, @"([a-zA-Z_$][0-9a-zA-Z_.]*)\(", RegexOptions.IgnoreCase).Success)
+			else if (Regex.Match(line, @"([a-zA-Z_$][0-9a-zA-Z_]*)\(", RegexOptions.IgnoreCase).Success)
 			{
+				// Function call on object variable
+				match = Regex.Match(line, @"([a-zA-Z_$][0-9a-zA-Z_]*)\.([a-zA-Z_$][0-9a-zA-Z_]*)\(", RegexOptions.IgnoreCase);
+				if (match.Success)
+				{
+					string objectVariableName = match.Groups[0].Value.Split('.')[0];
+
+					// TODO: Check for other predefined objects
+					if (objectVariableName != "Console")
+					{
+						variablesUsed.Add(objectVariableName);
+					}
+				}
+
 				variablesUsed.AddRange(ExtractVariables(line));
 			}
 			// Case VII: Variable++ or Variable-- statements
