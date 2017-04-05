@@ -16,13 +16,13 @@ namespace JavaScriptAnalyzer
 
 			if (Helper.isValidFile(fileName))
 			{
-				Dictionary<int, string> extraOrMissingCurlyBrackets = CurlyBracketsAnalyzer.GetExtraOrMissingCurlyBrackets(fileName);
+				List<string> extraOrMissingCurlyBrackets = CurlyBracketsAnalyzer.GetExtraOrMissingCurlyBrackets(fileName);
 
 				if (extraOrMissingCurlyBrackets.Count > 0)
 				{
 					DisplayExtraOrMissingCurlyBrackets(extraOrMissingCurlyBrackets);
 				}
-				// Check for other errors if no extra or missing brackets count.
+				// Check for other errors only if no extra or missing brackets found.
 				// As missing/extra curly brackets will change the scope of variables/functions/classes
 				else
 				{
@@ -39,14 +39,14 @@ namespace JavaScriptAnalyzer
 			Console.ReadLine();
 		}
 
-		private static void DisplayExtraOrMissingCurlyBrackets(Dictionary<int, string> extraOrMissingCurlyBrackets)
+		private static void DisplayExtraOrMissingCurlyBrackets(List<string> extraOrMissingCurlyBrackets)
 		{
 			if (extraOrMissingCurlyBrackets.Count > 0)
 			{
 				Console.WriteLine("\nList of missing/extra curly bracket status: ");
-				foreach (var extraOrMissingCurlyBracket in extraOrMissingCurlyBrackets)
+				foreach (string extraOrMissingCurlyBracket in extraOrMissingCurlyBrackets)
 				{
-					Console.WriteLine("Status: " + extraOrMissingCurlyBracket.Value + "\t\t Line No.: " + extraOrMissingCurlyBracket.Key);
+					Console.WriteLine(extraOrMissingCurlyBracket);
 				}
 			}
 		}
