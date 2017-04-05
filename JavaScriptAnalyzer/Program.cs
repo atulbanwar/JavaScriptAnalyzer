@@ -1,6 +1,7 @@
 ﻿using JavaScriptAnalyzer.Analyzer;
 using JavaScriptAnalyzer.POCO;
 using System;
+using System.Collections.Generic;
 
 namespace JavaScriptAnalyzer
 {
@@ -15,16 +16,39 @@ namespace JavaScriptAnalyzer
 
 			if (Helper.isValidFile(fileName))
 			{
-				CodeBlock root = CodeBlockGraphBuilder.GetCodeBlockGraph(fileName);
+				Dictionary<int, string> extraOrMissingCurlyBrackets = CurlyBracketsAnalyzer.GetExtraOrMissingCurlyBrackets(fileName);
 
-				VariableUsageAnalyzer.DisplayUnUsedVariables(root, fileName);
+				if (extraOrMissingCurlyBrackets.Count > 0)
+				{
+					DisplayExtraOrMissingCurlyBrackets(extraOrMissingCurlyBrackets);
+				}
+				// Check for other errors if no extra or missing brackets count.
+				// As missing/extra curly brackets will change the scope of variables/functions/classes
+				else
+				{
+					CodeBlock root = CodeBlockGraphBuilder.GetCodeBlockGraph(fileName);
 
-				FunctionUsageAnalyzer.DisplayUnDeclaredFunctions(root, fileName);
+					VariableUsageAnalyzer.DisplayUnUsedVariables(root, fileName);
 
-				SingleLineIfElseAnalyzer.DisplaySingleLineIfElse(fileName);
+					FunctionUsageAnalyzer.DisplayUnDeclaredFunctions(root, fileName);
+
+					SingleLineIfElseAnalyzer.DisplaySingleLineIfElse(fileName);
+				}
 			}
 
 			Console.ReadLine();
+		}
+
+		private static void DisplayExtraOrMissingCurlyBrackets(Dictionary<int, string> extraOrMissingCurlyBrackets)
+		{
+			if (extraOrMissingCurlyBrackets.Count > 0)
+			{
+				Console.WriteLine("\nList of missing/extra curly bracket status: ");
+				foreach (var extraOrMissingCurlyBracket in extraOrMissingCurlyBrackets)
+				{
+					Console.WriteLine("Status: " + extraOrMissingCurlyBracket.Value + "\t\t Line No.: " + extraOrMissingCurlyBracket.Key);
+				}
+			}
 		}
 	}
 }

@@ -42,6 +42,8 @@ namespace JavaScriptAnalyzer.Analyzer
 					lineNo++;
 					line = line.Trim();
 
+					if (line.Equals(string.Empty)) continue;
+
 					// If '{' of if is not present on last line, then looking on next line
 					if (isLookForOpenCurlyBracketForIf)
 					{

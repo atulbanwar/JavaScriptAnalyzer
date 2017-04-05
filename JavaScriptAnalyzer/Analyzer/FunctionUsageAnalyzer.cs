@@ -46,7 +46,7 @@ namespace JavaScriptAnalyzer.Analyzer
 						currentCodeBlock = CodeBlockGraphUtil.GetCurrentCodeBlock(currentCodeBlock, lineNo);
 
 						// To skip lines having class, class - function and function declaration
-						if (CodeBlockGraphUtil.HasClassDeclaration(line) || CodeBlockGraphUtil.HasFunctionDeclaration(line) || CodeBlockGraphUtil.HasClassFunctionDeclaration(line))
+						if (LineParserUtil.HasClassDeclaration(line) || LineParserUtil.HasFunctionDeclaration(line) || LineParserUtil.HasClassFunctionDeclaration(line))
 							continue;
 					}
 

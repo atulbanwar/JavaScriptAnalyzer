@@ -31,7 +31,7 @@ namespace JavaScriptAnalyzer
 					if (currentCodeBlock.Type == CodeBlockType.Class)
 					{
 						// If line inside class has a function declaration
-						if (CodeBlockGraphUtil.HasClassFunctionDeclaration(line))
+						if (LineParserUtil.HasClassFunctionDeclaration(line))
 						{
 							// Making new code block as current code block
 							CodeBlock block = GetClassFunctionCodeBlock(line, lineNo);
@@ -41,21 +41,21 @@ namespace JavaScriptAnalyzer
 					else
 					{
 						// If line has a function declaration
-						if (CodeBlockGraphUtil.HasFunctionDeclaration(line))
+						if (LineParserUtil.HasFunctionDeclaration(line))
 						{
 							// Making new code block as current code block
 							CodeBlock block = GetFunctionCodeBlock(line, lineNo);
 							UpdateCurrentCodeBlock(ref block, ref currentCodeBlock);
 						}
 						// If the line has a class declaration
-						else if (CodeBlockGraphUtil.HasClassDeclaration(line))
+						else if (LineParserUtil.HasClassDeclaration(line))
 						{
 							// Making new code block as current code block
 							CodeBlock block = GetClassCodeBlock(line, lineNo);
 							UpdateCurrentCodeBlock(ref block, ref currentCodeBlock);
 						}
 						// If the line has variable declaration(s)
-						else if (CodeBlockGraphUtil.HasVariableDeclaration(line))
+						else if (LineParserUtil.HasVariableDeclaration(line))
 						{
 							currentCodeBlock.Variables.AddRange(GetVariables(line, lineNo));
 						}
@@ -246,7 +246,7 @@ namespace JavaScriptAnalyzer
 			{
 				foreach (string varStr in line.Split(','))
 				{
-					if (CodeBlockGraphUtil.HasVariableDeclaration(varStr))
+					if (LineParserUtil.HasVariableDeclaration(varStr))
 					{
 						if (line.IndexOf("var ") == 0)
 						{
