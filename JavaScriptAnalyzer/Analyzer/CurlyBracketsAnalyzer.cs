@@ -55,7 +55,7 @@ namespace JavaScriptAnalyzer.Analyzer
 					// Rule I: If at anytime 'activeOpenCurlyBrackets' count < 0, it implies that there is an extra '}' bracket
 					if (activeOpenCurlyBrackets < 0)
 					{
-						extraOrMissingCurlyBrackets.Add("Status: Extra '}' Bracket\t\t\t\t Line No.: " + lineNo);
+						extraOrMissingCurlyBrackets.Add("Line No.: " + lineNo + "\t\tStatus: Extra '}' Bracket");
 						// setting this to 0, to parse further code as if everything was okay so far.
 						activeOpenCurlyBrackets = 0;
 					}
@@ -67,7 +67,7 @@ namespace JavaScriptAnalyzer.Analyzer
 						isLookingForOpenBracket = !isLookingForOpenBracket;
 						if (line[0] != '{')
 						{
-							extraOrMissingCurlyBrackets.Add("Status: Missing '{' Bracket\t\t\t\t Line No.: " + lineNoExpectingOpenBracket);
+							extraOrMissingCurlyBrackets.Add("Line No.: " + lineNoExpectingOpenBracket + "\t\tStatus: Missing '{' Bracket");
 							// Incrementing 'activeOpenCurlyBrackets' to parse further code as if everything was okay so far.
 							activeOpenCurlyBrackets++;
 						}
@@ -86,7 +86,7 @@ namespace JavaScriptAnalyzer.Analyzer
 						// While parsing class, if encounter a class or function declaration, it implies class in not closed
 						if (LineParserUtil.HasClassDeclaration(line) || LineParserUtil.HasFunctionDeclaration(line))
 						{
-							extraOrMissingCurlyBrackets.Add("Status: Missing corresponding '}' Bracket\t\t Line No.: " + lineNoExpectingCorrespondingClosingBracket);
+							extraOrMissingCurlyBrackets.Add("Line No.: " + lineNoExpectingCorrespondingClosingBracket + "\t\tStatus: Missing corresponding '}' Bracket");
 							// Decrementing 'activeOpenCurlyBrackets' to parse further code as if everything was okay so far.
 							activeOpenCurlyBrackets--;
 						}
@@ -103,7 +103,7 @@ namespace JavaScriptAnalyzer.Analyzer
 								// +3 class open bracket, previous block open bracket
 								if (activeOpenCurlyBrackets == activeOpenCurlyBracketsBeforeClass + 2)
 								{
-									extraOrMissingCurlyBrackets.Add("Status: Missing corresponding '}' Bracket\t\t Line No.: " + lineNoExpectingCorrespondingClosingBracket);
+									extraOrMissingCurlyBrackets.Add("Line No.: " + lineNoExpectingCorrespondingClosingBracket + "\t\tStatus: Missing corresponding '}' Bracket");
 									// Decrementing 'activeOpenCurlyBrackets' to parse further code as if everything was okay so far.
 									activeOpenCurlyBrackets--;
 								}
@@ -113,7 +113,7 @@ namespace JavaScriptAnalyzer.Analyzer
 								// +3 class open bracket, previous block open bracket, current block open bracket
 								if (activeOpenCurlyBrackets == activeOpenCurlyBracketsBeforeClass + 3)
 								{
-									extraOrMissingCurlyBrackets.Add("Status: Missing corresponding '}' Bracket\t\t Line No.: " + lineNoExpectingCorrespondingClosingBracket);
+									extraOrMissingCurlyBrackets.Add("Line No.: " + lineNoExpectingCorrespondingClosingBracket + "\t\tStatus: Missing corresponding '}' Bracket");
 									// Decrementing 'activeOpenCurlyBrackets' to parse further code as if everything was okay so far.
 									activeOpenCurlyBrackets--;
 								}
@@ -153,7 +153,7 @@ namespace JavaScriptAnalyzer.Analyzer
 
 				if (activeOpenCurlyBrackets > 0)
 				{
-					extraOrMissingCurlyBrackets.Add("Status: Missing '}' Bracket\t\t\t\t Line No.: " + lineNo);
+					extraOrMissingCurlyBrackets.Add("Line No.: " + lineNo + "\t\tStatus: Missing '}' Bracket");
 				}
 			}
 

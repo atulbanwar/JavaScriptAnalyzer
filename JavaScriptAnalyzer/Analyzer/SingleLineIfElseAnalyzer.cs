@@ -11,17 +11,18 @@ namespace JavaScriptAnalyzer.Analyzer
 		{
 			Dictionary<int, string> singleLineIfElseStatements = GetSingleLineIfElse(fileName);
 
+			Console.WriteLine("\n________ SINGLE LINE IF/ELSE ________");
 			if (singleLineIfElseStatements.Count > 0)
 			{
-				Console.WriteLine("\nList of single line if / else statements: ");
+				Console.WriteLine("List of single line if / else statements: ");
 				foreach (var singleLineIfElse in singleLineIfElseStatements)
 				{
-					Console.WriteLine("Statement: " + singleLineIfElse.Value + "\t\t Line No.: " + singleLineIfElse.Key);
+					Console.WriteLine("Line No.: " + singleLineIfElse.Key + "\t\tStatement: " + singleLineIfElse.Value);
 				}
 			}
 			else
 			{
-				Console.WriteLine("\nNo single line if/else statements found.");
+				Console.WriteLine("No single line if/else statements found.");
 			}
 		}
 

@@ -26,17 +26,18 @@ namespace JavaScriptAnalyzer.Analyzer
 
 			unUsedVariables.Sort((x, y) => x.LineNo.CompareTo(y.LineNo));
 
+			Console.WriteLine("\n________ VARIABLE USAGE STATS ________");
 			if (unUsedVariables.Count > 0)
 			{
-				Console.WriteLine("\nList of variables declared but not used: ");
+				Console.WriteLine("List of variables declared but not used: ");
 				foreach (Variable unUsedVariable in unUsedVariables)
 				{
-					Console.WriteLine("Name: " + unUsedVariable.Name + "\t\t Line No.: " + unUsedVariable.LineNo);
+					Console.WriteLine("Line No.: " + unUsedVariable.LineNo + "\t\tName: " + unUsedVariable.Name);
 				}
 			}
 			else
 			{
-				Console.WriteLine("\nAll the declared variables are used in the program");
+				Console.WriteLine("All the declared variables are used in the program");
 			}
 		}
 
