@@ -193,8 +193,7 @@ namespace JavaScriptAnalyzer.Analyzer
 				{
 					string objectVariableName = match.Groups[0].Value.Split('.')[0];
 
-					// TODO: Check for other predefined objects
-					if (objectVariableName != "Console")
+					if (!LineParserUtil.IsPredefinedObject(objectVariableName))
 					{
 						variablesUsed.Add(objectVariableName);
 					}

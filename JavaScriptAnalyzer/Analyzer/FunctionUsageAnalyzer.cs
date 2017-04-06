@@ -9,18 +9,22 @@ namespace JavaScriptAnalyzer.Analyzer
 {
 	class FunctionUsageAnalyzer
 	{
+		/// <summary>
+		/// Fetches and displays the list of called functions which are not declared
+		/// </summary>
+		/// <param name="root"></param>
+		/// <param name="fileName"></param>
 		public static void DisplayUnDeclaredFunctions(CodeBlock root, string fileName)
 		{
-
-			Dictionary<string, int> unDeclaredFunctions = GetUnDeclaredFunctionNames(root, fileName);
+			List<string> unDeclaredFunctions = GetUnDeclaredFunctionNames(root, fileName);
 
 			Console.WriteLine("\n________ FUNCTION USAGE STATS ________");
 			if (unDeclaredFunctions.Count > 0)
 			{
 				Console.WriteLine("List of functions called but not declared (or out of scope): ");
-				foreach (var unDeclaredFn in unDeclaredFunctions)
+				foreach (string unDeclaredFn in unDeclaredFunctions)
 				{
-					Console.WriteLine("Line No.: " + unDeclaredFn.Value + "\t\tName: " + unDeclaredFn.Key);
+					Console.WriteLine(unDeclaredFn);
 				}
 			}
 			else
@@ -29,9 +33,15 @@ namespace JavaScriptAnalyzer.Analyzer
 			}
 		}
 
-		private static Dictionary<string, int> GetUnDeclaredFunctionNames(CodeBlock root, string fileName)
+		/// <summary>
+		/// Finds the list of called functions which are not declared
+		/// </summary>
+		/// <param name="root"></param>
+		/// <param name="fileName"></param>
+		/// <returns></returns>
+		private static List<string> GetUnDeclaredFunctionNames(CodeBlock root, string fileName)
 		{
-			Dictionary<string, int> unDeclaredFunctions = new Dictionary<string, int>();
+			List<string> unDeclaredFunctions = new List<string>();
 			CodeBlock currentCodeBlock = root;
 			string line;
 			int lineNo = 0;
@@ -73,28 +83,29 @@ namespace JavaScriptAnalyzer.Analyzer
 							objectVariableName = functionCallParts[0];
 							functionName = functionCallParts[1].Replace("(", "");
 
-							// TODO: Check for other predefined objects
-							if (objectVariableName == "console")
-							{
-								continue;
-							}
+							// Predefined objects
+							if (LineParserUtil.IsPredefinedObject(objectVariableName)) continue;
 
 							// Locate variable in current or parent block. If variable is not found in scope, then cannot call function
 							Variable objectVariable = GetVariable(objectVariableName, lineNo, currentCodeBlock);
 
-							// TODO: Handle predefinded methods which can be called on any variables
+							if (objectVariable == null) continue;
+
 							// If the variable is not of type object, then can't call class methods on top of it
 							if (objectVariable.Type != VariableType.Object)
 							{
 								continue;
 							}
 
+							// Predefined methods on an object
+							if (LineParserUtil.IsPredefinedObjectFunction(functionName)) continue;
+
 							isFunctionDeclared = IsClassFunctionDeclared(functionName, objectVariable.ObjectName, lineNo, currentCodeBlock);
 
 							// If function is not found in current block and in parents block. Add it to unDeclaredFunctions list
 							if (!isFunctionDeclared)
 							{
-								unDeclaredFunctions.Add(functionName, lineNo);
+								unDeclaredFunctions.Add("Line No.: " + lineNo + "\t\tName: " + functionName);
 							}
 
 							continue;
@@ -105,12 +116,15 @@ namespace JavaScriptAnalyzer.Analyzer
 						if (match.Success)
 						{
 							functionName = match.Groups[1].Value;
+
+							if (LineParserUtil.IsPredefinedFunction(functionName)) continue;
+
 							isFunctionDeclared = IsFunctionDeclared(functionName, lineNo, currentCodeBlock);
 
 							// If function is not found in current block and in parents block. Add it to unDeclaredFunctions list
 							if (!isFunctionDeclared)
 							{
-								unDeclaredFunctions.Add(functionName, lineNo);
+								unDeclaredFunctions.Add("Line No.: " + lineNo + "\t\tName: " + functionName);
 							}
 						}
 					}
@@ -120,6 +134,14 @@ namespace JavaScriptAnalyzer.Analyzer
 			return unDeclaredFunctions;
 		}
 
+		/// <summary>
+		/// Checking if the function is defined in class or not
+		/// </summary>
+		/// <param name="functionName"></param>
+		/// <param name="className"></param>
+		/// <param name="lineNo"></param>
+		/// <param name="currentCodeBlock"></param>
+		/// <returns>true if the funtion is defined in class else false</returns>
 		private static bool IsClassFunctionDeclared(string functionName, string className, int lineNo, CodeBlock currentCodeBlock)
 		{
 			CodeBlock checkInBlock = currentCodeBlock;
@@ -175,6 +197,13 @@ namespace JavaScriptAnalyzer.Analyzer
 			return isFunctionDeclared;
 		}
 
+		/// <summary>
+		/// Get variable object on which the function is called
+		/// </summary>
+		/// <param name="objectVariableName"></param>
+		/// <param name="lineNo"></param>
+		/// <param name="currentCodeBlock"></param>
+		/// <returns>Variable Object</returns>
 		private static Variable GetVariable(string objectVariableName, int lineNo, CodeBlock currentCodeBlock)
 		{
 			Variable variable = null;
@@ -211,6 +240,13 @@ namespace JavaScriptAnalyzer.Analyzer
 			return variable;
 		}
 
+		/// <summary>
+		/// Checking if the called funtion is declared or not
+		/// </summary>
+		/// <param name="functionName"></param>
+		/// <param name="lineNo"></param>
+		/// <param name="currentCodeBlock"></param>
+		/// <returns>true if the function is declared a appropriate place or flase</returns>
 		private static bool IsFunctionDeclared(string functionName, int lineNo, CodeBlock currentCodeBlock)
 		{
 			CodeBlock checkInBlock = currentCodeBlock;
@@ -218,7 +254,7 @@ namespace JavaScriptAnalyzer.Analyzer
 
 			// Checking for function name in current block childrens
 			// While looking at function defined in current block. Check for variable defined functions
-			// as they cannot be called before they are declared
+			// as they cannot be called before declaration
 			foreach (CodeBlock childCodeBlock in checkInBlock.ChildrenBlocks)
 			{
 				if (childCodeBlock.Type == CodeBlockType.Function && childCodeBlock.Name == functionName)

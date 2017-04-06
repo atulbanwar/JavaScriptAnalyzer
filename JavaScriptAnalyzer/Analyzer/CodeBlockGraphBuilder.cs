@@ -126,25 +126,21 @@ namespace JavaScriptAnalyzer
 
 				if (line.TrimStart().IndexOf("var ") == 0)
 				{
-					match = Regex.Match(line, @"var ([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
+					match = Regex.Match(line, @"var\s+([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
 				}
 				else
 				{
-					match = Regex.Match(line, @"let ([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
+					match = Regex.Match(line, @"let\s+([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
 				}
 			}
 			else if (line.TrimStart().IndexOf("function") == 0)
 			{
-				match = Regex.Match(line, @"function ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
+				match = Regex.Match(line, @"function\s+([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
 			}
 
 			if (match != null && match.Success)
 			{
 				functionName = match.Groups[1].Value;
-			}
-			else
-			{
-				// TODO: Log "Unable to read function name at line ...";
 			}
 
 			return new CodeBlock()
@@ -170,14 +166,10 @@ namespace JavaScriptAnalyzer
 			Match match = null;
 
 			match = Regex.Match(line.TrimStart(), @"([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
-			
+
 			if (match.Success)
 			{
 				functionName = match.Groups[1].Value;
-			}
-			else
-			{
-				// TODO: Log "Unable to read function name at line ...";
 			}
 
 			return new CodeBlock()
@@ -202,15 +194,11 @@ namespace JavaScriptAnalyzer
 			string className = string.Empty;
 			Match match = null;
 
-			match = Regex.Match(line, @"class ([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
+			match = Regex.Match(line, @"class\s+([a-zA-Z_$][0-9a-zA-Z_]*)", RegexOptions.IgnoreCase);
 
 			if (match != null && match.Success)
 			{
 				className = match.Groups[1].Value;
-			}
-			else
-			{
-				// TODO: Log "Unable to read class name at line ...";
 			}
 
 			return new CodeBlock()
@@ -250,11 +238,11 @@ namespace JavaScriptAnalyzer
 					{
 						if (line.IndexOf("var ") == 0)
 						{
-							match = Regex.Match(line, @"var ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
+							match = Regex.Match(line, @"var\s+([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
 						}
 						else
 						{
-							match = Regex.Match(line, @"let ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
+							match = Regex.Match(line, @"let\s+([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
 						}
 					}
 					else
@@ -276,21 +264,17 @@ namespace JavaScriptAnalyzer
 
 						variables.Add(variable);
 					}
-					else
-					{
-						// TODO: Log "Unable to read variable name at line ...";
-					}
 				}
 			}
 			else
 			{
 				if (line.IndexOf("var ") == 0)
 				{
-					match = Regex.Match(line, @"var ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
+					match = Regex.Match(line, @"var\s+([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
 				}
 				else
 				{
-					match = Regex.Match(line, @"let ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
+					match = Regex.Match(line, @"let\s+([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
 				}
 
 				if (match.Success)
@@ -302,7 +286,7 @@ namespace JavaScriptAnalyzer
 					{
 						if (line.Split('=')[1].Trim().IndexOf("new ") == 0)
 						{
-							match = Regex.Match(line, @"new ([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
+							match = Regex.Match(line, @"new\s+([a-zA-Z_$][0-9a-zA-Z_$]*)", RegexOptions.IgnoreCase);
 
 							if (match.Success)
 							{
@@ -322,10 +306,6 @@ namespace JavaScriptAnalyzer
 					};
 
 					variables.Add(variable);
-				}
-				else
-				{
-					// TODO: Log "Unable to read variable name";
 				}
 			}
 

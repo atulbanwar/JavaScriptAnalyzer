@@ -5,6 +5,11 @@ namespace JavaScriptAnalyzer.Analyzer
 {
 	class CurlyBracketsAnalyzer
 	{
+		/// <summary>
+		/// Find and return the list of Extra/Missing curly brackets
+		/// </summary>
+		/// <param name="fileName"></param>
+		/// <returns>List<string></returns>
 		public static List<string> GetExtraOrMissingCurlyBrackets(string fileName)
 		{
 			List<string> extraOrMissingCurlyBrackets = new List<string>();
@@ -15,11 +20,10 @@ namespace JavaScriptAnalyzer.Analyzer
 			{
 				int activeOpenCurlyBrackets = 0;
 				int activeOpenCurlyBracketsBeforeClass = 0;
+				int lineNoExpectingOpenBracket = 0;
+				int lineNoExpectingCorrespondingClosingBracket = 0;
 				bool isParsingClass = false;
 				bool isLookingForOpenBracket = false;
-				int lineNoExpectingOpenBracket = 0;
-				bool isLookingForCorrespondingClosingBracket = false;
-				int lineNoExpectingCorrespondingClosingBracket = 0;
 
 				while ((line = file.ReadLine()) != null)
 				{
@@ -73,11 +77,10 @@ namespace JavaScriptAnalyzer.Analyzer
 						}
 					}
 
-					// Different section as syntax inside class is little different
+					// Different section for class as syntax inside class is different
 					if (isParsingClass && (activeOpenCurlyBrackets == activeOpenCurlyBracketsBeforeClass))
 					{
 						isParsingClass = false;
-						isLookingForCorrespondingClosingBracket = false;
 						lineNoExpectingCorrespondingClosingBracket = 0;
 					}
 
@@ -119,7 +122,6 @@ namespace JavaScriptAnalyzer.Analyzer
 								}
 							}
 
-							isLookingForCorrespondingClosingBracket = true;
 							lineNoExpectingCorrespondingClosingBracket = lineNo;
 						}
 					}
@@ -151,6 +153,7 @@ namespace JavaScriptAnalyzer.Analyzer
 					}
 				}
 
+				// Rule IV: If in the end the count of open bracket is more, report a missing closing bracket
 				if (activeOpenCurlyBrackets > 0)
 				{
 					extraOrMissingCurlyBrackets.Add("Line No.: " + lineNo + "\t\tStatus: Missing '}' Bracket");

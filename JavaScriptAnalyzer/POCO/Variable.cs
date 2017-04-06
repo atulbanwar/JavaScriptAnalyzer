@@ -2,6 +2,9 @@
 
 namespace JavaScriptAnalyzer.POCO
 {
+	/// <summary>
+	/// Used to store info a variable
+	/// </summary>
 	class Variable
 	{
 		public string Name { get; set; }

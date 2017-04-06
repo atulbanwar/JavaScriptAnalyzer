@@ -76,5 +76,39 @@ namespace JavaScriptAnalyzer.Analyzer
 		{
 			if (line.IndexOf("constructor(") == 0) return true; else return false;
 		}
+
+		/// <summary>
+		/// Checking for predefined object names
+		/// </summary>
+		/// <param name="functionName"></param>
+		/// <returns>true if the object is a predefined object else false</returns>
+		internal static bool IsPredefinedObject(string objectName)
+		{
+			return objectName == "console" || objectName == "window";
+		}
+
+		/// <summary>
+		/// Checking for predefined function over variables or objects
+		/// </summary>
+		/// <param name="functionName"></param>
+		/// <returns>true if the funtion is a predefined funtions else false</returns>
+		internal static bool IsPredefinedObjectFunction(string functionName)
+		{
+			return functionName == "hasOwnProperty" || functionName == "isPrototypeOf" || functionName == "propertyIsEnumerable" || functionName == "toLocaleString" || functionName == "toString" || functionName == "valueOf";
+		}
+
+		/// <summary>
+		/// Checking for predefined function names
+		/// </summary>
+		/// <param name="functionName"></param>
+		/// <returns>true if the funtion is a predefined funtions else false</returns>
+		internal static bool IsPredefinedFunction(string functionName)
+		{
+			return functionName == "decodeURI" || functionName == "decodeURIComponent" || functionName == "encodeURI"
+				|| functionName == "encodeURIComponent" || functionName == "escape" || functionName == "eval"
+				|| functionName == "isFinite" || functionName == "isNaN" || functionName == "Number"
+				|| functionName == "parseFloat" || functionName == "parseInt" || functionName == "String"
+				|| functionName == "unescape";
+		}
 	}
 }

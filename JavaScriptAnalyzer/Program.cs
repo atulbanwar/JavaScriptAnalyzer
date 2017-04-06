@@ -7,20 +7,30 @@ namespace JavaScriptAnalyzer
 {
 	class Program
 	{
+		/// <summary>
+		/// JavaScript Analyzer
+		/// The program will read the JavaScript file from Input folder. It will report
+		/// 1. Extra/Missing Curly Brackets
+		/// 2. Varaiables declared but not used
+		/// 3. Functions called but not declared
+		/// 4. Single line if/else statements
+		/// </summary>
+		/// <param name="args"></param>
 		static void Main(string[] args)
 		{
-			string fileName;
+			string fileName, fileFullPath;
 
 			do
 			{
 				Console.Clear();
 				Console.WriteLine("_____________________ JAVASCRIPT ANALYZER _____________________");
-				Console.Write("\nEnter JavaScript file name (or full file path) with extension: ");
+				Console.Write("\nEnter JavaScript file name with extension: ");
 				fileName = Console.ReadLine();
+				fileFullPath = @"..\..\Input\" + fileName;
 
-				if (Helper.isValidFile(fileName))
+				if (Helper.isValidFile(fileFullPath))
 				{
-					List<string> extraOrMissingCurlyBrackets = CurlyBracketsAnalyzer.GetExtraOrMissingCurlyBrackets(fileName);
+					List<string> extraOrMissingCurlyBrackets = CurlyBracketsAnalyzer.GetExtraOrMissingCurlyBrackets(fileFullPath);
 
 					if (extraOrMissingCurlyBrackets.Count > 0)
 					{
@@ -30,13 +40,13 @@ namespace JavaScriptAnalyzer
 					// As missing/extra curly brackets will change the scope of variables/functions/classes
 					else
 					{
-						CodeBlock root = CodeBlockGraphBuilder.GetCodeBlockGraph(fileName);
+						CodeBlock root = CodeBlockGraphBuilder.GetCodeBlockGraph(fileFullPath);
 
-						VariableUsageAnalyzer.DisplayUnUsedVariables(root, fileName);
+						VariableUsageAnalyzer.DisplayUnUsedVariables(root, fileFullPath);
 
-						FunctionUsageAnalyzer.DisplayUnDeclaredFunctions(root, fileName);
+						FunctionUsageAnalyzer.DisplayUnDeclaredFunctions(root, fileFullPath);
 
-						SingleLineIfElseAnalyzer.DisplaySingleLineIfElse(fileName);
+						SingleLineIfElseAnalyzer.DisplaySingleLineIfElse(fileFullPath);
 					}
 				}
 

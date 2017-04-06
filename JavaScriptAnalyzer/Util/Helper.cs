@@ -5,23 +5,22 @@ namespace JavaScriptAnalyzer
 {
 	class Helper
 	{
-		public static bool isValidFile(string fileName)
+		/// <summary>
+		/// Checking if the input file is a valid file
+		/// </summary>
+		/// <param name="fileFullPath"></param>
+		/// <returns></returns>
+		public static bool isValidFile(string fileFullPath)
 		{
-			if (String.IsNullOrWhiteSpace(fileName))
-			{
-				Console.WriteLine("Please enter valid file name.");
-				return false;
-			}
-
-			if (!Path.GetExtension(fileName).Equals(".js"))
+			if (!Path.GetExtension(fileFullPath).Equals(".js"))
 			{
 				Console.WriteLine("The input file is not a valid javascript file.");
 				return false;
 			}
 
-			if (!File.Exists(fileName))
+			if (!File.Exists(fileFullPath))
 			{
-				Console.WriteLine("File not found. Please enter JavaScript file name (or full file path) with extension.");
+				Console.WriteLine("File not found. Please enter JavaScript file name with extension.");
 				return false;
 			}
 

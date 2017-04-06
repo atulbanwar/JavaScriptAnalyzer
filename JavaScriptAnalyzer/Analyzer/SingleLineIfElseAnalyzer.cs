@@ -7,17 +7,21 @@ namespace JavaScriptAnalyzer.Analyzer
 {
 	class SingleLineIfElseAnalyzer
 	{
+		/// <summary>
+		/// Fetches and displays the list of single line If/Else statements
+		/// </summary>
+		/// <param name="fileName"></param>
 		public static void DisplaySingleLineIfElse(string fileName)
 		{
-			Dictionary<int, string> singleLineIfElseStatements = GetSingleLineIfElse(fileName);
+			List<string> singleLineIfElseStatements = GetSingleLineIfElse(fileName);
 
 			Console.WriteLine("\n________ SINGLE LINE IF/ELSE ________");
 			if (singleLineIfElseStatements.Count > 0)
 			{
 				Console.WriteLine("List of single line if / else statements: ");
-				foreach (var singleLineIfElse in singleLineIfElseStatements)
+				foreach (string singleLineIfElse in singleLineIfElseStatements)
 				{
-					Console.WriteLine("Line No.: " + singleLineIfElse.Key + "\t\tStatement: " + singleLineIfElse.Value);
+					Console.WriteLine(singleLineIfElse);
 				}
 			}
 			else
@@ -26,9 +30,14 @@ namespace JavaScriptAnalyzer.Analyzer
 			}
 		}
 
-		private static Dictionary<int, string> GetSingleLineIfElse(string fileName)
+		/// <summary>
+		/// Fetches the list of single line If/Else statements
+		/// </summary>
+		/// <param name="fileName"></param>
+		/// <returns></returns>
+		private static List<string> GetSingleLineIfElse(string fileName)
 		{
-			Dictionary<int, string> singleLineIfElseStatements = new Dictionary<int, string>();
+			List<string> singleLineIfElseStatements = new List<string>();
 			string line;
 			int lineNo = 0;
 
@@ -51,7 +60,7 @@ namespace JavaScriptAnalyzer.Analyzer
 						isLookForOpenCurlyBracketForIf = !isLookForOpenCurlyBracketForIf;
 						if (line[0] != '{')
 						{
-							singleLineIfElseStatements.Add(lineNo - 1, "IF");
+							singleLineIfElseStatements.Add("Line No.: " + (lineNo - 1) + "\t\tStatement: IF");
 						}
 					}
 
@@ -61,7 +70,7 @@ namespace JavaScriptAnalyzer.Analyzer
 						isLookForOpenCurlyBracketForElse = !isLookForOpenCurlyBracketForElse;
 						if (line[0] != '{')
 						{
-							singleLineIfElseStatements.Add(lineNo - 1, "ELSE");
+							singleLineIfElseStatements.Add("Line No.: " + (lineNo - 1) + "\t\tStatement: ELSE");
 						}
 					}
 
