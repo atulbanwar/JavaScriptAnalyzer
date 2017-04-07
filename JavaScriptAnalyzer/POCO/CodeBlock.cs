@@ -12,7 +12,6 @@ namespace JavaScriptAnalyzer.POCO
 		public string Name { get; set; }
 		public CodeBlockType Type { get; set; }
 		public CodeBlockSubType SubType { get; set; }
-		public bool IsRoot { get; set; }
 		public List<int> RunsOnLines { get; set; }
 		public List<Variable> Variables { get; set; }
 		public List<CodeBlock> ChildrenBlocks { get; set; }
